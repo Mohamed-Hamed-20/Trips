@@ -1,13 +1,14 @@
-import userModel from "../../../../DB/model/User.model.js";
+import userModel from "../../../DB/model/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../../../services/email.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
-import {
-  findById,
-  findByIdAndUpdate,
-  findOne,
-} from "../../../../DB/DBMethods.js";
+import { findOne, findOneAndUpdate } from "../../../DB/DBMethods.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const signUp = async (req, res, next) => {
   try {
@@ -36,13 +37,16 @@ export const signUp = async (req, res, next) => {
         { expiresIn: 60 * 60 }
       );
       let link = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/confirmEmail/${token}`;
-      let message = `please verify your email <a href="${link}">here</a>
-        <br/>
-        `;
-      let result = await sendEmail(email, "confirm to register", message);
+
+      let emailTemplatePath = path.join(__dirname, "./email.html");
+      let emailTemplate = fs.readFileSync(emailTemplatePath, "utf-8");
+      emailTemplate = emailTemplate.replace("{{link}}", link);
+
+      let result = await sendEmail(email, "Verify Your Email", emailTemplate);
+
       if (result.accepted.length) {
         let savedUser = await addUser.save();
-        res.status(201).json({ message: "Added successfully", savedUser });
+        res.status(201).json({ message: "Success", savedUser });
       } else {
         next(new Error("Invalid email", { cause: 404 }));
       }
@@ -61,8 +65,7 @@ export const confirmEmail = async (req, res, next) => {
     let { token } = req.params;
     let decoded = jwt.verify(token, process.env.emailToken);
     if (!decoded && !decoded.id) {
-      res.status(400).json({ message: "invalid token data" });
-      next(new Error("Invalid token data", { cause: 400 }));
+      return res.sendFile(path.join(__dirname, "email-failed.html"));
     } else {
       let updatedUser = await findOneAndUpdate({
         model: userModel,
@@ -71,9 +74,9 @@ export const confirmEmail = async (req, res, next) => {
         options: { new: true },
       });
       if (updatedUser) {
-        res.status(200).json({ message: "confirmed" });
+        return res.sendFile(path.join(__dirname, "email-success.html"));
       } else {
-        next(new Error("Invalid token data", { cause: 400 }));
+        return res.redirect("https://www.google.com/");
       }
     }
   } catch (error) {
@@ -105,7 +108,7 @@ export const logIn = asyncHandler(async (req, res, next) => {
           process.env.tokenSignature,
           { expiresIn: 60 * 60 * 60 * 24 * 2 }
         );
-        res.status(200).json({ message: "Welcome", token });
+        res.status(200).json({ message: "Success", token });
       }
     } else {
       next(new Error("Password don't match", { cause: 400 }));

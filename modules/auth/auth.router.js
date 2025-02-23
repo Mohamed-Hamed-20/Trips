@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validation } from "../../middleware/validation.js";
-import { signUpValidation, updateRole } from "./auth.validation.js";
+import { signUpValidation } from "./auth.validation.js";
 import * as registerControl from "./controller/auth.controller.js";
 const router = Router();
 

@@ -1,5 +1,3 @@
-import categoryModel from "./model/category.model.js";
-// import { userModel } from "./model/user.model.js;
 
 export const findOne = async ({ model, condition, select, populate = [] } = {}) => {
     let data = await model.findOne(condition).select(select).populate(populate);

@@ -22,7 +22,7 @@ app.use(cors());
 connection();
 //Setup API Routing
 app.use(`${baseUrl}/auth`, indexRouter.authRouter);
-app.use(`${baseUrl}/user`, indexRouter.userRouter);
+// app.use(`${baseUrl}/user`, indexRouter.userRouter);
 // app.use(`${baseUrl}/product`, indexRouter.productRouter);
 
 app.use("*", (req, res, next) => {

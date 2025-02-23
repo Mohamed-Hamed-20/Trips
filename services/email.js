@@ -12,7 +12,7 @@ export async function sendEmail(dest, subject, message, attachments = []) {
 
     // send mail with defined transport object
     let info = await transporter.sendMail({
-        from: `"Rentech" < ${process.env.nodeMailerEmail}>`, // sender address
+        from: `"Turtles" < ${process.env.nodeMailerEmail}>`, // sender address
         to: dest, // list of receivers
         subject, // Subject line
         html: message, // html body
@@ -20,3 +20,6 @@ export async function sendEmail(dest, subject, message, attachments = []) {
     });
     return info
 }
+
+
+
