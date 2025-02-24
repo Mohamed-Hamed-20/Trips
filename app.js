@@ -22,11 +22,12 @@ app.use(cors());
 connection();
 //Setup API Routing
 app.use(`${baseUrl}/auth`, indexRouter.authRouter);
+app.use(`${baseUrl}`, indexRouter.profileRoutes);
 // app.use(`${baseUrl}/user`, indexRouter.userRouter);
 // app.use(`${baseUrl}/product`, indexRouter.productRouter);
 
 app.use("*", (req, res, next) => {
-  res.send("In-valid Routing Plz check url or method");
+  res.json("In-valid Routing Plz check url or method");
 });
 
 app.use(globalError);
