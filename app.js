@@ -8,23 +8,35 @@ dotenv.config({ path: path.join(__dirname, "./config/.env") });
 import express from "express";
 import morgan from "morgan";
 import * as indexRouter from "./modules/index.route.js";
+import http from "http";
 import connection from "./DB/connection.js";
 import { globalError } from "./services/asyncHandler.js";
+import chatRoutes from "./modules/chat/chat.routes.js";
+import messageRoutes from "./modules/message/message.routes.js";
+import { initSocket } from "./socket/socket.js";
 
 const app = express();
+const server = http.createServer(app);
+
 // setup port and the baseUrl
 const port = process.env.PORT || 5000;
 const baseUrl = process.env.BASEURL;
 app.use(express.json());
-app.use(morgan());
+app.use(morgan("tiny"));
 app.use(cors());
 
 connection();
+
 //Setup API Routing
 app.use(`${baseUrl}/auth`, indexRouter.authRouter);
 app.use(`${baseUrl}`, indexRouter.profileRoutes);
 // app.use(`${baseUrl}/user`, indexRouter.userRouter);
 // app.use(`${baseUrl}/product`, indexRouter.productRouter);
+
+// Socket.io
+app.use(`${baseUrl}/chats`, chatRoutes);
+app.use(`${baseUrl}/messages`, messageRoutes);
+initSocket(server);
 
 app.use("*", (req, res, next) => {
   res.json("In-valid Routing Plz check url or method");
@@ -32,4 +44,4 @@ app.use("*", (req, res, next) => {
 
 app.use(globalError);
 
-app.listen(port, () => console.log(`App listening on port ${port}!`));
+server.listen(port, () => console.log(`App listening on port ${port}!`));

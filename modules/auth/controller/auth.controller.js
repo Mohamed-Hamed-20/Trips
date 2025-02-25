@@ -1,5 +1,5 @@
 import userModel from "../../../DB/model/user.model.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../../../services/email.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
