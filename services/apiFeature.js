@@ -17,7 +17,7 @@ export default class ApiPipeline {
 
   //sort: query params  "field1:asc,field2:desc"
   sort(sortText) {
-    console.log("hi");
+
     if (!sortText) return this;
 
     const sortFields = {};
