@@ -1,24 +1,25 @@
-import chatModel from "../../../DB/model/chat.model.js";
+import conversationModel from "../../../DB/model/conversation.model.js";
 import messageModel from "../../../DB/model/message.model.js";
+import ApiPipeline from "../../../services/apiFeature.js";
 
 export const getHistory = async (req, res, next) => {
   try {
-    const { chatId } = req.query;
+    const { conversationId } = req.query;
     const user = req.user;
-    const chat = await chatModel.findById(chatId);
+    const conversation = await conversationModel.findById(conversationId);
 
-    if (!chat) {
-      return next(new Error("Invalid chatId", { cause: 404 }));
+    if (!conversation) {
+      return next(new Error("Invalid conversationId", { cause: 404 }));
     }
 
-    if (!chat.participants.includes(user._id)) {
+    if (!conversation.participants.includes(user._id)) {
       return next(
         new Error("Not allow to view this conversation", { cause: 401 })
       );
     }
 
     const messages = await messageModel
-      .find({ chatId: chat._id })
+      .find({ conversationId: conversation._id })
       .sort({ createdAt: -1 })
       .limit(20)
       .skip(0);
@@ -29,11 +30,11 @@ export const getHistory = async (req, res, next) => {
   }
 };
 
-export const lastchats = async (req, res, next) => {
+export const lastconversations = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-    const recentChats = await messageModel
+    const recentconversations = await messageModel
       .find({
         $or: [{ sender: userId }, { receiver: userId }],
       })
@@ -43,19 +44,19 @@ export const lastchats = async (req, res, next) => {
       .populate("receiver", "userName email")
       .lean();
 
-    const chatMap = new Map();
-    recentChats.forEach((msg) => {
-      const chatPartner =
+    const conversationMap = new Map();
+    recentconversations.forEach((msg) => {
+      const conversationPartner =
         msg.sender._id.toString() === userId ? msg.receiver : msg.sender;
-      if (!chatMap.has(chatPartner._id.toString())) {
-        chatMap.set(chatPartner._id.toString(), {
-          chatId: msg.chatId,
+      if (!conversationMap.has(conversationPartner._id.toString())) {
+        conversationMap.set(conversationPartner._id.toString(), {
+          conversationId: msg.conversationId,
           lastMessage: msg.content,
           lastMessageTime: msg.createdAt,
           user: {
-            id: chatPartner._id,
-            userName: chatPartner.userName,
-            email: chatPartner.email,
+            id: conversationPartner._id,
+            userName: conversationPartner.userName,
+            email: conversationPartner.email,
           },
         });
       }
@@ -63,12 +64,79 @@ export const lastchats = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      recentChats: Array.from(chatMap.values()),
+      recentconversations: Array.from(conversationMap.values()),
     });
   } catch (error) {
-    console.error("Error fetching recent chats:", error);
+    console.error("Error fetching recent conversations:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal Server Error" });
   }
 };
+
+
+
+export const sendMessage = async (req, res, next) => {
+  try {
+    const { receiverId, content, conversationId } = req.body;
+    const userId = req.user._id;
+    console.log({ userId, receiverId, content, conversationId });
+
+    // التحقق من وجود جميع الحقول المطلوبة
+    if (!receiverId || !content || !conversationId) {
+      return next(new Error("Missing required fields", { cause: 400 }));
+    }
+
+    // جلب المحادثة بواسطة المعرف
+    const conversation = await conversationModel.findById(conversationId);
+    if (!conversation) {
+      return next(new Error("Conversation not found", { cause: 404 }));
+    }
+
+    // التأكد من أن كل من المرسل والمستقبل موجودين ضمن المشاركين في المحادثة
+    const participantIds = conversation.participants.map((user) =>
+      user.toString()
+    );
+    if (
+      !participantIds.includes(userId.toString()) ||
+      !participantIds.includes(receiverId.toString())
+    ) {
+      return next(
+        new Error(
+          "User or receiver is not a participant in this conversation",
+          { cause: 401 }
+        )
+      );
+    }
+
+    // إنشاء رسالة جديدة
+    const newMessage = await messageModel.create({
+      sender: userId,
+      content,
+      conversationId,
+      readBy: [],
+      deliveredTo: [],
+    });
+
+    // تحديث الحقل الخاص بآخر رسالة في المحادثة
+    conversation.lastMessage = {
+      content,
+      createdAt: new Date(),
+      sender: userId,
+    };
+
+    await conversation.save();
+
+    return res.status(200).json({
+      message: "Message created successfully",
+      success: true,
+      data: newMessage,
+    });
+  } catch (error) {
+    console.error("Error in sendMessage:", error);
+    return next(new Error("Internal server error", { cause: 500 }));
+  }
+};
+
+
+

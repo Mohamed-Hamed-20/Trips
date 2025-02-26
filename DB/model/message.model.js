@@ -2,9 +2,9 @@ import { Schema, model, Types } from "mongoose";
 
 const messageSchema = new Schema(
   {
-    chatId: {
+    conversationId: {
       type: Types.ObjectId,
-      ref: "chat",
+      ref: "conversation",
       required: true,
     },
     sender: {

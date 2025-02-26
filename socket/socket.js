@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from "socket.io";
 import messageModel from "../DB/model/message.model.js";
-import chatModel from "../DB/model/chat.model.js";
+import conversationModel from "../DB/model/conversation.model.js";
 import { hadleToken } from "../services/hadleToken.js";
 
 // Tracking rooms if needed (you can also use Socket.IO's built-in adapter methods)
@@ -68,8 +68,8 @@ const handleJoin = async (socket, token) => {
 /**
  * Handles the send_message event:
  * - Validates the user stored in the socket.
- * - Retrieves an existing chat or creates a new one if chatId is not provided or not found.
- * - Checks that the sender and receiver are participants of the chat.
+ * - Retrieves an existing conversation or creates a new one if conversationId is not provided or not found.
+ * - Checks that the sender and receiver are participants of the conversation.
  * - Creates and saves the message.
  * - Emits the message to the receiver if they are connected.
  */
@@ -85,18 +85,18 @@ const handleSendMessage = async (io, socket, data) => {
       return;
     }
 
-    let chat = await chatModel.findOne({
+    let conversation = await conversationModel.findOne({
       participants: { $all: [receiverId, user._id] },
     });
 
-    if (!chat) {
-      chat = await chatModel.create({
+    if (!conversation) {
+      conversation = await conversationModel.create({
         participants: [receiverId, user._id],
       });
     }
 
     const newMessage = await messageModel.create({
-      chatId: chat._id,
+      conversationId: conversation._id,
       sender: user._id,
       content: content,
     });
@@ -130,12 +130,10 @@ const handleSendMessage = async (io, socket, data) => {
 
     console.log({ userinfo });
     // send by socket id
-    
-    // send by room name 
+
+    // send by room name
 
     //room name
-
-
 
     io.to(userinfo.socketId).emit("receive_message", newMessage);
     // }
