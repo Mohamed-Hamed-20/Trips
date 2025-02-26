@@ -1,15 +1,35 @@
 import userModel from "../../../DB/model/user.model.js";
+import ApiPipeline from "../../../services/apiFeature.js";
 
-export const searchUsers = async (req, res) => {
-  try {
-    const { q } = req.query;
-    const users = await userModel
-      .find({
-        name: { $regex: q, $options: "i" },
-      })
-      .select("name email");
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+const allowUserFields = [
+  "name",
+  "email",
+  "phone",
+  "role",
+  "image",
+  "lastSeen",
+  "Trips",
+];
+
+export const searchUsers = async (req, res, next) => {
+  const { search, sort, select, page, size } = req.query;
+
+  const pipeline = new ApiPipeline()
+    .match({ fields: ["name", "role", "email"], search, op: "$or" })
+    .paginate(page, size)
+    .lookUp({
+      from: "trip",
+      localField: "wishlist",
+      foreignField: "_id",
+      as: "Trips",
+    })
+    .sort(sort)
+    .projection({ allowFields: allowUserFields, select })
+    .build();
+
+  const users = await userModel.aggregate(pipeline);
+
+  return res
+    .status(200)
+    .json({ message: "found success", success: true, users });
 };

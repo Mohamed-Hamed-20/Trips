@@ -11,8 +11,6 @@ import * as indexRouter from "./modules/index.route.js";
 import http from "http";
 import connection from "./DB/connection.js";
 import { globalError } from "./services/asyncHandler.js";
-import chatRoutes from "./modules/chat/chat.routes.js";
-import messageRoutes from "./modules/message/message.routes.js";
 import { initSocket } from "./socket/socket.js";
 
 const app = express();
@@ -30,12 +28,12 @@ connection();
 //Setup API Routing
 app.use(`${baseUrl}/auth`, indexRouter.authRouter);
 app.use(`${baseUrl}`, indexRouter.profileRoutes);
-// app.use(`${baseUrl}/user`, indexRouter.userRouter);
+app.use(`${baseUrl}/users`, indexRouter.userRoutes);
 // app.use(`${baseUrl}/product`, indexRouter.productRouter);
 
 // Socket.io
-app.use(`${baseUrl}/chats`, chatRoutes);
-app.use(`${baseUrl}/messages`, messageRoutes);
+app.use(`${baseUrl}/conversations`, indexRouter.conversationRoutes);
+app.use(`${baseUrl}/messages`, indexRouter.messageRoutes);
 initSocket(server);
 
 app.use("*", (req, res, next) => {
