@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { paginate } from "./pagination.js";
 
 export default class ApiPipeline {
@@ -14,8 +15,11 @@ export default class ApiPipeline {
     return this;
   }
 
+  //sort: query params  "field1:asc,field2:desc"
   sort(sortText) {
+    console.log("hi");
     if (!sortText) return this;
+
     const sortFields = {};
     sortText.split(",").forEach((item) => {
       const [field, order] = item.split(":");
@@ -26,6 +30,11 @@ export default class ApiPipeline {
     return this;
   }
 
+  matchId({ Id, field }) {
+    if (!Id) return this;
+    this.pipeline.push({ $match: { [field]: Types.ObjectId(Id) } });
+    return this;
+  }
   lookUp({ from, localField, foreignField, as }) {
     this.pipeline.push({
       $lookup: {
