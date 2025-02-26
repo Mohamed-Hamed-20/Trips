@@ -12,10 +12,13 @@ import http from "http";
 import connection from "./DB/connection.js";
 import { globalError } from "./services/asyncHandler.js";
 import { initSocket } from "./socket/socket.js";
+import redis from "./DB/redis.js";
 
 const app = express();
 const server = http.createServer(app);
 
+//redis connect
+redis;
 // setup port and the baseUrl
 const port = process.env.PORT || 5000;
 const baseUrl = process.env.BASEURL;
