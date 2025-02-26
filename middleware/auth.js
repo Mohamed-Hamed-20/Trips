@@ -12,7 +12,6 @@ export const auth = (
   acceptRoles = [roles.User, roles.Admin, roles.Traveler]
 ) => {
   return asyncHandler(async (req, res, next) => {
-    // try {
     const { authorization } = req.headers;
     if (!authorization?.startsWith(process.env.BearerKey)) {
       // res.status(400).json({ message: "In-valid Bearer key" })

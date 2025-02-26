@@ -1,17 +1,18 @@
 import mongoose, { Schema } from "mongoose";
-
-const messageSchema = new Schema(
+const conversationSchema = new Schema(
   {
-    conversationId: { type: Schema.Types.ObjectId, ref: "Conversation" },
-    sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    content: { type: String, required: true },
-    type: { type: String, default: "text" },
-    isdelivered: { type: Boolean, default: false },
-    isRead: { type: Boolean, default: false },
+    participants: [
+      { type: Schema.Types.ObjectId, ref: "User", required: true },
+    ],
+    lastMessage: {
+      content: { type: String },
+      sender: { type: Schema.Types.ObjectId, ref: "User" },
+      createdAt: { type: Date },
+    },
   },
-  { timestamps: { createdAt: "createdAt" } }
+  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );
 
-const conversationModel = mongoose.model("Message", messageSchema);
+const conversationModel = mongoose.model("Conversation", conversationSchema);
 
 export default conversationModel;

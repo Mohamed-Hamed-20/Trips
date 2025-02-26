@@ -1,16 +1,35 @@
 import userModel from "../../../DB/model/user.model.js";
+import ApiPipeline from "../../../services/apiFeature.js";
 
+const allowUserFields = [
+  "name",
+  "email",
+  "phone",
+  "role",
+  "image",
+  "lastSeen",
+  "Trips",
+];
 
 export const searchUsers = async (req, res, next) => {
-  const { search, sort, page, size, select } = req.query;
-  const { limit, skip } = paginate(page, size);
+  const { search, sort, select, page, size } = req.query;
 
   const pipeline = new ApiPipeline()
-    .paginate(skip, limit)
+    .match({ fields: ["name", "role", "email"], search, op: "$or" })
+    .paginate(page, size)
+    .lookUp({
+      from: "trip",
+      localField: "wishlist",
+      foreignField: "_id",
+      as: "Trips",
+    })
+    .sort(sort)
     .projection({ allowFields: allowUserFields, select })
     .build();
 
   const users = await userModel.aggregate(pipeline);
 
-  res.json(users);
+  return res
+    .status(200)
+    .json({ message: "found success", success: true, users });
 };

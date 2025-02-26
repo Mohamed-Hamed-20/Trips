@@ -6,6 +6,7 @@ export default class ApiPipeline {
   }
 
   match({ fields, search, op }) {
+    if (!search) return this;
     const searchQuery = fields.map((field) => ({
       [field]: { $regex: search, $options: "i" },
     }));
@@ -13,13 +14,9 @@ export default class ApiPipeline {
     return this;
   }
 
-  /**
-   * sort: يأخذ نص من query params بالشكل "field1:asc,field2:desc"
-   */
   sort(sortText) {
     if (!sortText) return this;
     const sortFields = {};
-    // مثال: "name:asc,createdAt:desc"
     sortText.split(",").forEach((item) => {
       const [field, order] = item.split(":");
       sortFields[field.trim()] =
@@ -42,7 +39,7 @@ export default class ApiPipeline {
   }
 
   projection({ allowFields, select }) {
-    if (!select) return this;
+    if (!select) select = allowFields.join(",");
     const fieldWanted = select
       .split(",")
       .filter((field) => allowFields.includes(field));
