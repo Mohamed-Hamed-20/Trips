@@ -10,4 +10,5 @@ router.get(
   auth([roles.User, roles.Admin, roles.Traveler]),
   asyncHandler(uc.searchUsers)
 );
+
 export default router;
