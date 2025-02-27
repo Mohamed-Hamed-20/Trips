@@ -19,7 +19,7 @@ router.post(
 router.get(
   "/",
   validation(tokenValidation),
-  validation(queryValidationSchema(CC.allowConversationFields)),
+  validation(queryValidationSchema(CC.allowConversationSortFields)),
   auth([roles.User, roles.Admin, roles.Traveler]),
   asyncHandler(CC.searchConversations)
 );

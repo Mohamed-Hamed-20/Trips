@@ -2,7 +2,10 @@ import { Router } from "express";
 import * as MC from "./controller/message.controller.js";
 import { auth, roles } from "../../middleware/auth.js";
 import { asyncHandler } from "../../services/asyncHandler.js";
-import { queryValidationSchema, tokenValidation } from "../conversation/conversation.validation.js";
+import {
+  queryValidationSchema,
+  tokenValidation,
+} from "../conversation/conversation.validation.js";
 import { validation } from "../../middleware/validation.js";
 
 const router = Router();
@@ -22,7 +25,7 @@ const router = Router();
 router.get(
   "/",
   validation(tokenValidation),
-  validation(queryValidationSchema),
+  validation(queryValidationSchema(MC.allowfieldMessages)),
   auth([roles.User, roles.Admin, roles.Traveler]),
   asyncHandler(MC.getMessages)
 );
