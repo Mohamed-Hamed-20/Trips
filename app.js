@@ -29,6 +29,11 @@ connection();
 app.use(`${baseUrl}/auth`, indexRouter.authRouter);
 app.use(`${baseUrl}`, indexRouter.profileRoutes);
 app.use(`${baseUrl}/users`, indexRouter.userRoutes);
+app.use(`${baseUrl}/wishlist`, indexRouter.wishlistRoutes);
+app.use(`${baseUrl}/review`, indexRouter.reviewRoutes);
+
+
+
 // app.use(`${baseUrl}/product`, indexRouter.productRouter);
 
 // Socket.io

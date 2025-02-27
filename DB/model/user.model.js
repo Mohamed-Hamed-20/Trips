@@ -6,7 +6,7 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Name is required"],
       min: [2, "minimum length 2 char"],
-      max: [20, "max length 2 char"],
+      max: [20, "max length 20 char"],
     },
     email: {
       type: String,
@@ -34,7 +34,7 @@ const userSchema = new Schema(
     wishlist: [
       {
         type: Types.ObjectId,
-        ref: "trip",
+        ref: "Trip",
       },
     ],
   },
@@ -43,5 +43,5 @@ const userSchema = new Schema(
   }
 );
 
-const userModel = model("user", userSchema);
+const userModel = model("User", userSchema);
 export default userModel;
