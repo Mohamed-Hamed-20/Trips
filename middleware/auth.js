@@ -18,7 +18,6 @@ export const auth = (
       next(new Error("Invalid Bearer key", { cause: 400 }));
     } else {
       const token = authorization.split(" ")[1];
-      console.log(token);
 
       const decoded = jwt.verify(token, process.env.tokenSignature);
       if (!decoded?.id || !decoded?.isLoggedIn) {

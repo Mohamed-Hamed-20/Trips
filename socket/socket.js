@@ -4,8 +4,10 @@ import conversationModel from "../DB/model/conversation.model.js";
 import { handleToken } from "../services/hadleToken.js";
 import redis from "../DB/redis.js";
 
-// Tracking rooms if needed (you can also use Socket.IO's built-in adapter methods)
-let rooms = [];
+const isSocketConnected = (io, socketId) => {
+  const socket = io.sockets.sockets.get(socketId);
+  return socket ? socket.connected : false;
+};
 
 export const initSocket = (server) => {
   const io = new SocketIOServer(server, {
@@ -18,19 +20,18 @@ export const initSocket = (server) => {
 
   io.on("connection", async (socket) => {
     console.log("User connected:", socket.id);
+
     socket.on("login", async (token) => {
       await handleJoin(socket, token);
     });
 
-    // Handle send_message event
     socket.on("send_message", async (data) => {
       await handleSendMessage(io, socket, data);
     });
 
-    // Handle disconnect event
     socket.on("disconnect", async () => {
       console.log(
-        `user with Id ${socket.userId} and socketId ${socket.id} disconnect :(`
+        `User with Id ${socket.userId} and socketId ${socket.id} disconnected`
       );
       await handleDisconnect(socket);
     });
@@ -39,16 +40,10 @@ export const initSocket = (server) => {
   return io;
 };
 
-const isSocketConnected = (socketId) => {
-  const socket = io.sockets.sockets.get(socketId);
-  return socket ? socket.connected : false;
-};
-
 /**
  * Handles the join event:
  * - Decodes the token and authenticates the user.
  * - Stores the user data in the socket.
- * - Adds the user to a room identified by their user ID.
  */
 const handleJoin = async (socket, token) => {
   try {
@@ -62,7 +57,7 @@ const handleJoin = async (socket, token) => {
     socket.emit("logged_success", {
       message: "User logged in",
     });
-    console.log(`User ${user._id} joined room.`);
+    console.log(`User ${user._id} logged in.`);
   } catch (error) {
     socket.emit("error", { message: "Error during authentication" });
     console.error("Error in join handler:", error);
@@ -71,30 +66,29 @@ const handleJoin = async (socket, token) => {
 
 /**
  * Handles the send_message event:
- * - Validates the user stored in the socket.
- * - Retrieves an existing conversation or creates a new one if conversationId is not provided or not found.
- * - Checks that the sender and receiver are participants of the conversation.
+ * - Ensures the user is authenticated.
+ * - Retrieves or creates a conversation.
+ * - Validates that sender and receiver are participants.
  * - Creates and saves the message.
- * - Emits the message to the receiver if they are connected.
+ * - Emits the message to the receiver if connected.
  */
 const handleSendMessage = async (io, socket, data) => {
   try {
     const { content, receiverId, conversationId } = data;
+    const senderId = socket.userId;
 
-    console.log({ content, receiverId });
-
-    const userId = socket.userId;
-    if (!userId) {
+    if (!senderId) {
       socket.emit("error", { message: "User not authenticated" });
       return;
     }
 
-    const lastMessage = { content, sender: userId, createdAt: Date.now() };
+    const lastMessage = { content, sender: senderId, createdAt: Date.now() };
+
     let conversation = await conversationModel
       .findOneAndUpdate(
         {
           _id: conversationId,
-          participants: { $all: [receiverId, user._id] },
+          participants: { $all: [receiverId, senderId] },
         },
         { $set: { lastMessage } },
         { new: true }
@@ -103,26 +97,24 @@ const handleSendMessage = async (io, socket, data) => {
 
     if (!conversation) {
       const conversationValues = {
-        participants: [userId, receiverId],
-        lastMessage: { content, sender: userId, createdAt: Date.now() },
+        participants: [senderId, receiverId],
+        lastMessage: { content, sender: senderId, createdAt: Date.now() },
       };
       conversation = await conversationModel.create(conversationValues);
     }
 
+    // إنشاء الرسالة
     const newMessage = await messageModel.create({
       conversationId: conversation._id,
-      sender: user._id,
-      content: content,
+      sender: senderId,
+      content,
     });
 
-    // Emit the message to the receiver if their room exists
-    const receiverSocketId = await redis.hget(`user-${userId}`, "socketId");
-    if (receiverSocketId) {
-      const isconnected = isSocketConnected(receiverSocketId);
-      if (isconnected)
-        return io.to(receiverSocketId).emit("receive_message", newMessage);
+    // استرجاع socketId للمستقبل من Redis
+    const receiverSocketId = await redis.hget(`user-${receiverId}`, "socketId");
+    if (receiverSocketId && isSocketConnected(io, receiverSocketId)) {
+      io.to(receiverSocketId).emit("receive_message", newMessage);
     }
-    return;
   } catch (error) {
     socket.emit("error", { message: error.message });
     console.error("Error in send_message handler:", error);
@@ -131,9 +123,12 @@ const handleSendMessage = async (io, socket, data) => {
 
 /**
  * Handles the disconnect event:
- * - Removes the disconnected socket from the rooms array.
+ * - Removes the socketId from Redis for the disconnected user.
  */
 const handleDisconnect = async (socket) => {
-  await redis.hdel(`user-${socket.userId}`, "socketId");
+  if (socket.userId) {
+    await redis.hdel(`user-${socket.userId}`, "socketId");
+    console.log("Removed socketId for user:", socket.userId);
+  }
   console.log("User disconnected:", socket.id);
 };
