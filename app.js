@@ -32,6 +32,8 @@ connection();
 app.use(`${baseUrl}/auth`, indexRouter.authRouter);
 app.use(`${baseUrl}`, indexRouter.profileRoutes);
 app.use(`${baseUrl}/users`, indexRouter.userRoutes);
+app.use(`${baseUrl}/trips`, indexRouter.tripRoutes);
+
 // app.use(`${baseUrl}/product`, indexRouter.productRouter);
 
 // Socket.io
