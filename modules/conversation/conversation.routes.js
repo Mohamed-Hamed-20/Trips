@@ -3,7 +3,10 @@ import * as CC from "./controller/conversation.controller.js";
 import { auth, roles } from "../../middleware/auth.js";
 import { asyncHandler } from "../../services/asyncHandler.js";
 import { validation } from "../../middleware/validation.js";
-import { queryValidationSchema, tokenValidation } from "./conversation.validation.js";
+import {
+  queryValidationSchema,
+  tokenValidation,
+} from "./conversation.validation.js";
 
 const router = express.Router();
 
@@ -16,10 +19,11 @@ router.post(
 router.get(
   "/",
   validation(tokenValidation),
-  validation(queryValidationSchema),
+  validation(queryValidationSchema(CC.allowConversationFields)),
   auth([roles.User, roles.Admin, roles.Traveler]),
   asyncHandler(CC.searchConversations)
 );
+
 router.get(
   "/:conversationId",
   validation(tokenValidation),

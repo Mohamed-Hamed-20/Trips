@@ -1,7 +1,7 @@
 import conversationModel from "../../../DB/model/conversation.model.js";
 import userModel from "../../../DB/model/user.model.js";
 import ApiPipeline from "../../../services/apiFeature.js";
-const allowConversationFields = [
+export const allowConversationFields = [
   "participants",
   "lastMessage",
   "createdAt",
