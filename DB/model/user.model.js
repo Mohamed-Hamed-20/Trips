@@ -22,9 +22,9 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      default: "Traveler",
-      enum: ["Traveler", "Guide"],
-    },
+      default: 'User',
+      enum: ["User", "Organizer", "Admin"]
+  },
     confirmEmail: {
       type: Boolean,
       default: false,
@@ -34,7 +34,7 @@ const userSchema = new Schema(
     wishlist: [
       {
         type: Types.ObjectId,
-        ref: "trip",
+        ref: "Trip",
       },
     ],
   },

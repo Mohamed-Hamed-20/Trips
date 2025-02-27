@@ -48,10 +48,9 @@ const tripSchema = new Schema(
       required: true,
       min: [0, "Available seats cannot be negative."],
     },
-    organizer: {
+    createdBy: {
       type: Types.ObjectId,
       ref: "user",
-      required: true,
     },
     bookings: [
       {
