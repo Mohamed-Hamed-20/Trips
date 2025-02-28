@@ -7,6 +7,7 @@ import { findOne, findOneAndUpdate } from "../../../DB/DBMethods.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import redis from "../../../DB/redis.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -90,7 +91,11 @@ export const confirmEmail = async (req, res, next) => {
 
 export const logIn = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await findOne({ model: userModel, condition: { email } });
+  const user = await findOne({
+    model: userModel,
+    condition: { email },
+  });
+
   if (!user) {
     next(new Error("You have to register first", { cause: 404 }));
   } else {
@@ -108,6 +113,10 @@ export const logIn = asyncHandler(async (req, res, next) => {
           process.env.tokenSignature,
           { expiresIn: 60 * 60 * 60 * 24 * 2 }
         );
+
+        await redis.set(`user-${user._id}`, JSON.stringify(user.toObject()));
+        await redis.expire(`user-${user._id}`, 900);
+
         res.status(200).json({ message: "Success", token });
       }
     } else {

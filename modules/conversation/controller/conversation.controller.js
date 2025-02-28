@@ -15,6 +15,7 @@ export const allowConversationSortFields = [
   "participants.email",
   "participants.role",
   "participants.image",
+  "participants.lastSeen",
 ];
 
 export const allowConversationFields = [
@@ -124,7 +125,11 @@ export const searchConversations = async (req, res, next) => {
         },
       },
     })
-    .projection({ allowFields: allowConversationSortFields, select })
+    .projection({
+      allowFields: allowConversationSortFields,
+      select,
+      defultFields: allowConversationFields,
+    })
     .build();
 
   const conversations = await conversationModel.aggregate(pipeline);

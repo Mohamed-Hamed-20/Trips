@@ -24,7 +24,11 @@ export const searchUsers = async (req, res, next) => {
       as: "Trips",
     })
     .sort(sort)
-    .projection({ allowFields: allowUserFields, select })
+    .projection({
+      allowFields: allowUserFields,
+      select,
+      defultFields: allowUserFields,
+    })
     .build();
 
   const users = await userModel.aggregate(pipeline);

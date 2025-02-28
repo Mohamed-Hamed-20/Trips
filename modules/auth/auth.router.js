@@ -12,8 +12,4 @@ router.post("/signup", validation(signUpValidation), registerControl.signUp);
 router.get("/confirmEmail/:token", registerControl.confirmEmail);
 router.post("/login", registerControl.logIn);
 
-
-
-
-
 export default router;

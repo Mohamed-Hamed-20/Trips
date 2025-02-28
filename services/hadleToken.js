@@ -16,9 +16,13 @@ export const handleToken = async (token, socketId) => {
       throw new Error("Invalid token payload");
     }
 
-    let user = await redis.hgetall(`user-${decoded.id}`);
+    let user = await redis.get(`user-${decoded.id}`);
 
-    if (Object.keys(user).length === 0) {
+    if (user) {
+      user = JSON.parse(user);
+    }
+
+    if (!user || Object.keys(user).length === 0) {
       user = await userModel
         .findById(decoded.id)
         .select("-password -confirmEmail -wishlist")
@@ -27,15 +31,12 @@ export const handleToken = async (token, socketId) => {
       if (!user) {
         throw new Error("User not found");
       }
-
-      user.socketId = socketId;
-
-      await redis.hset(`user-${user._id}`, user);
-      await redis.expire(`user-${user._id}`, 900);
-    } else {
-      await redis.hset(`user-${decoded.id}`, "socketId", socketId);
-      await redis.expire(`user-${decoded.id}`, 900);
     }
+
+    user.socketId = socketId;
+
+    await redis.set(`user-${user._id}`, JSON.stringify(user));
+    await redis.expire(`user-${user._id}`, 900);
 
     return user;
   } catch (error) {
