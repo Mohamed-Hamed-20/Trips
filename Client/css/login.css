@@ -1,0 +1,14 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+#login-container,
+#chat-container {
+  margin-bottom: 20px;
+}
+#messages div {
+  margin: 5px 0;
+  padding: 8px;
+  background: #f1f1f1;
+  border-radius: 4px;
+}
