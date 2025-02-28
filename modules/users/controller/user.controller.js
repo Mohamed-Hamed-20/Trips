@@ -1,7 +1,7 @@
 import userModel from "../../../DB/model/user.model.js";
 import ApiPipeline from "../../../services/apiFeature.js";
 
-const allowUserFields = [
+export const allowUserFields = [
   "name",
   "email",
   "phone",

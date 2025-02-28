@@ -32,7 +32,7 @@ export const createSortSchema = (allowedFields) => {
         }
         if (!["asc", "desc"].includes(order?.toLowerCase())) {
           return helpers.error("any.invalid", {
-            message: `Invalid order '${order}' for field '${field}'`,
+            message: `Invalid order '${order}' for field '${field}' must be asc , desc`,
           });
         }
       }
@@ -85,7 +85,9 @@ export const queryValidationSchema = (allowFields) => {
       .object({
         search: joi.string().allow("", null).trim(),
         sort: createSortSchema(allowFields),
+
         select: createSelectSchema(allowFields),
+
         page: joi.number().integer().min(1).messages({
           "number.base": "Page must be a number",
           "number.integer": "Page must be an integer",

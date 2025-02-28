@@ -1,6 +1,22 @@
 import conversationModel from "../../../DB/model/conversation.model.js";
 import userModel from "../../../DB/model/user.model.js";
 import ApiPipeline from "../../../services/apiFeature.js";
+import { allowUserFields } from "../../users/controller/user.controller.js";
+
+export const allowConversationSortFields = [
+  "participants",
+  "lastMessage",
+  "createdAt",
+  "updatedAt",
+  "lastMessage.createdAt",
+  "lastMessage.sender",
+  "lastMessage.content",
+  "participants.name",
+  "participants.email",
+  "participants.role",
+  "participants.image",
+];
+
 export const allowConversationFields = [
   "participants",
   "lastMessage",
@@ -83,7 +99,32 @@ export const searchConversations = async (req, res, next) => {
       op: "$or",
       fields: ["lastMessage.sender", "participants"],
     })
-    .projection({ allowFields: allowConversationFields, select })
+    .addStage({
+      $project: {
+        _id: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        participants: {
+          $map: {
+            input: "$participants",
+            as: "user",
+            in: allowUserFields.reduce((acc, field) => {
+              acc[field] = `$$user.${field}`;
+              return acc;
+            }, {}),
+          },
+        },
+        lastMessage: {
+          content: "$lastMessage.content",
+          createdAt: "$lastMessage.createdAt",
+          sender: allowUserFields.reduce((acc, field) => {
+            acc[field] = { $arrayElemAt: [`$sender.${field}`, 0] };
+            return acc;
+          }, {}),
+        },
+      },
+    })
+    .projection({ allowFields: allowConversationSortFields, select })
     .build();
 
   const conversations = await conversationModel.aggregate(pipeline);

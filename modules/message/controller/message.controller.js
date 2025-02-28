@@ -2,7 +2,7 @@ import conversationModel from "../../../DB/model/conversation.model.js";
 import messageModel from "../../../DB/model/message.model.js";
 import ApiPipeline from "../../../services/apiFeature.js";
 
-const allowfieldMessages = [
+export const allowfieldMessages = [
   "conversationId",
   "createdAt",
   "updatedAt",

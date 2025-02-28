@@ -8,10 +8,6 @@ const matchSchema = Joi.object({
   op: Joi.string().valid("$or", "$and").required(),
 });
 
-const sortSchema = Joi.string().pattern(
-  /^\s*\w+:(asc|desc)(\s*,\s*\w+:(asc|desc))*\s*$/i
-);
-
 export default class ApiPipeline {
   constructor() {
     this.pipeline = [];
@@ -33,11 +29,6 @@ export default class ApiPipeline {
 
   sort(sortText) {
     if (!sortText) return this;
-
-    const { error } = sortSchema.validate(sortText);
-    if (error) {
-      throw new Error(`Invalid sort parameter: ${error.message}`);
-    }
 
     const sortFields = {};
     sortText.split(",").forEach((item) => {
@@ -70,8 +61,8 @@ export default class ApiPipeline {
     return this;
   }
 
-  projection({ allowFields, select }) {
-    if (!select) select = allowFields.join(",");
+  projection({ allowFields, select ,defultFields}) {
+    if (!select) select = defultFields.join(",");
     const fieldWanted = select
       .split(",")
       .map((f) => f.trim())
@@ -89,8 +80,8 @@ export default class ApiPipeline {
 
   paginate(page, size) {
     const { limit, skip } = paginate(page, size);
-    this.pipeline.push({ $skip: skip });
-    this.pipeline.push({ $limit: limit });
+    this.pipeline.push({ $skip: Number(skip) });
+    this.pipeline.push({ $limit: Number(limit) });
     return this;
   }
 

@@ -6,6 +6,8 @@ import userRoutes from "./users/user.route.js";
 import wishlistRoutes from "./wishlist/wishlist.router.js";
 import reviewRoutes from "./review/review.router.js";
 
+import tripRoutes from "./trips/trips.router.js";
+
 export {
   authRouter,
   profileRoutes,
