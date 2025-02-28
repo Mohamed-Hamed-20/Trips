@@ -4,7 +4,7 @@ const reviewSchema = new Schema(
   {
     user: {
       type: Types.ObjectId,
-      ref: "User",
+      ref: "user",
       required: true,
     },
     trip: {
@@ -16,12 +16,12 @@ const reviewSchema = new Schema(
       type: Number,
       required: true,
       min: 1,
-      max: 5, 
+      max: 5,
     },
     comment: {
       type: String,
       trim: true,
-      maxlength: 500, 
+      maxlength: 500,
     },
   },
   { timestamps: true }

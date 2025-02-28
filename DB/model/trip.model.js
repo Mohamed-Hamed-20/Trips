@@ -50,7 +50,7 @@ const tripSchema = new Schema(
     },
     organizer: {
       type: Types.ObjectId,
-      ref: "User",
+      ref: "user",
       required: true,
     },
     bookings: [
@@ -60,11 +60,11 @@ const tripSchema = new Schema(
       },
     ],
     reviews: [
-        {
-          type: Types.ObjectId,
-          ref: "Review",
-        },
-      ], 
+      {
+        type: Types.ObjectId,
+        ref: "Review",
+      },
+    ],
   },
   {
     timestamps: true,

@@ -5,7 +5,7 @@ import {
   updateReview,
   deleteReview,
 } from "./controller/review.controller.js";
-import { auth } from "../../middleware/auth.js";
+import { auth, roles } from "../../middleware/auth.js";
 
 const reviewRoutes = express.Router();
 reviewRoutes.get("/trip/:tripId", getReviews); // Fetch reviews for a trip

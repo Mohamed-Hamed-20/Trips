@@ -2,6 +2,17 @@ import conversationModel from "../../../DB/model/conversation.model.js";
 import messageModel from "../../../DB/model/message.model.js";
 import ApiPipeline from "../../../services/apiFeature.js";
 
+const allowfieldMessages = [
+  "conversationId",
+  "createdAt",
+  "updatedAt",
+  "sender",
+  "content",
+  "type",
+  "isdelivered",
+  "isRead",
+];
+
 export const getHistory = async (req, res, next) => {
   try {
     const { conversationId } = req.query;
@@ -74,8 +85,6 @@ export const lastconversations = async (req, res, next) => {
   }
 };
 
-
-
 export const sendMessage = async (req, res, next) => {
   try {
     const { receiverId, content, conversationId } = req.body;
@@ -138,5 +147,50 @@ export const sendMessage = async (req, res, next) => {
   }
 };
 
+export const getMessages = async (req, res, next) => {
+  const { conversationId } = req.query;
+  const { sort, search, select, page, size } = req.query;
+  const userId = req.user._id;
 
+  const conversation = await conversationModel.findById(conversationId);
 
+  if (!conversation) {
+    return next(new Error("Invaild conversation Id", { cause: 400 }));
+  }
+
+  if (!conversation.participants.includes(userId)) {
+    return next(
+      new Error("not allow to view this conversation", { cause: 401 })
+    );
+  }
+
+  const pipeline = new ApiPipeline()
+    .matchId({
+      Id: conversationId,
+      field: "_id",
+    })
+    .match({
+      fields: ["content"],
+      op: "$or",
+      search,
+    })
+    .sort(sort)
+    .lookUp({
+      from: "user",
+      localField: "sender",
+      foreignField: "_id",
+      as: "sender",
+    })
+    .paginate(page, size)
+    .projection({
+      allowFields: allowfieldMessages,
+      select,
+    })
+    .build();
+
+  const messgaes = await messageModel.aggregate(pipeline);
+
+  return res
+    .status(200)
+    .json({ message: "returned success", success: 200, data: messgaes });
+};

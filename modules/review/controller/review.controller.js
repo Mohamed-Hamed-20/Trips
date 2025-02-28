@@ -48,6 +48,9 @@ export const addReview = async (req, res) => {
       comment,
     });
 
+    console.log(newReview);
+    
+
     await newReview.save();
 
     trip.reviews.push(newReview._id);
@@ -107,7 +110,7 @@ export const deleteReview = async (req, res) => {
       await trip.save();
     }
 
-    res.json({ message: "reviewModel deleted" });
+    res.json({ message: "review deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
