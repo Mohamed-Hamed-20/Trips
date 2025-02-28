@@ -30,14 +30,10 @@ connection();
 
 //Setup API Routing
 app.use(`${baseUrl}/auth`, indexRouter.authRouter);
-app.use(`${baseUrl}`, indexRouter.profileRoutes);
-app.use(`${baseUrl}/users`, indexRouter.userRoutes);
-app.use(`${baseUrl}`, indexRouter.wishlistRoutes);
-app.use(`${baseUrl}`, indexRouter.reviewRoutes);
-
-
-
-// app.use(`${baseUrl}/product`, indexRouter.productRouter);
+app.use(`${baseUrl}/user`, indexRouter.profileRoutes);
+app.use(`${baseUrl}/user`, indexRouter.userRoutes);
+app.use(`${baseUrl}/review`, indexRouter.reviewRoutes);
+app.use(`${baseUrl}/trips`, indexRouter.tripRoutes);
 
 // Socket.io
 app.use(`${baseUrl}/conversations`, indexRouter.conversationRoutes);

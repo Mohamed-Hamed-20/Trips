@@ -21,7 +21,7 @@ const reviewSchema = new Schema(
     comment: {
       type: String,
       trim: true,
-      maxlength: 500,
+      maxLength: 500,
     },
   },
   { timestamps: true }

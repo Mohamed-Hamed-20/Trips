@@ -2,7 +2,7 @@ import tripModel from "../../../DB/model/trip.model.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
 import slugify from "slugify";
 import cloudinary from "../../../services/cloudinary.js";
-import ApiFeatures from "../../../Utiletis/apiFeatures.js";
+// import ApiFeatures from "../../../Utiletis/apiFeatures.js";
 
 export const addTrip = asyncHandler(async (req, res, next) => {
   if (!req.files?.length) {
@@ -39,13 +39,13 @@ export const addTrip = asyncHandler(async (req, res, next) => {
   }
 });
 
-export const getAlltrips = asyncHandler(async (req, res, next) => {
-  let api = new ApiFeatures(tripModel.find(), req.query);
+export const getAllTrips = asyncHandler(async (req, res, next) => {
+  // let api = new ApiFeatures(tripModel.find(), req.query);
   let allTrips = await tripModel.find();
   res.json({ message: "Success", allTrips });
 });
 
-export const getAlltripsById = asyncHandler(async (req, res, next) => {
+export const getTripById = asyncHandler(async (req, res, next) => {
   try {
     const trip = await tripModel.findById(req.params.id);
 

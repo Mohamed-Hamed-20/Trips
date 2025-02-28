@@ -9,7 +9,7 @@ import { auth } from "../../middleware/auth.js";
 const wishlistRoutes = express.Router();
 
 wishlistRoutes.get("/wishlist", auth(), getWishlist);
-wishlistRoutes.post("/wishlist/:tripId", auth(), addToWishlist);
-wishlistRoutes.delete("/wishlist/:tripId", auth(), removeFromWishlist);
+wishlistRoutes.post("/add/:tripId", auth(), addToWishlist);
+wishlistRoutes.delete("/remove/:tripId", auth(), removeFromWishlist);
 
 export default wishlistRoutes;

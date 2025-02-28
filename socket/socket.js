@@ -1,8 +1,8 @@
 import { Server as SocketIOServer } from "socket.io";
 import messageModel from "../DB/model/message.model.js";
 import conversationModel from "../DB/model/conversation.model.js";
-import { handleToken } from "../services/hadleToken.js";
-import redis from "../DB/redis.js";
+// import { handleToken } from "../services/hadleToken.js";
+// import redis from "../DB/redis.js";
 
 const isSocketConnected = (io, socketId) => {
   const socket = io.sockets.sockets.get(socketId);
