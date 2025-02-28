@@ -6,12 +6,12 @@ const tripSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      maxlength: 100,
+      maxLength: 100,
     },
     description: {
       type: String,
       trim: true,
-      maxlength: 500,
+      maxLength: 500,
     },
     destination: {
       type: String,
