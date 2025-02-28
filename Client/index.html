@@ -1,29 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/index.css" />
-  </head>
-  <body>
+<html lang="ar">
 
-    <div class="container mt-5" id="chat-container">
-        <h2 class="text-center">Chat</h2>
-        <div class="card">
-            <div class="card-header">Messages</div>
-            <div class="card-body chat-box d-flex flex-column" id="messages"></div>
-            <div class="card-footer d-flex">
-                <input type="text" id="message-input" class="form-control" placeholder="Type a message">
-                <button id="send-btn" class="btn btn-success ms-2">Send</button>
-            </div>
-        </div>
-    </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اختبار WebSocket</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+</head>
 
+<body class="container mt-5">
+  <h2 class="text-center">اختبار WebSocket</h2>
 
-      <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/sockit.js"></script>
-  </body>
+  <div class="mb-3">
+    <label for="tokenInput" class="form-label">أدخل التوكن:</label>
+    <input type="text" id="tokenInput" class="form-control" placeholder="توكن المصادقة">
+    <button id="loginBtn" class="btn btn-primary mt-2">تسجيل الدخول</button>
+  </div>
+
+  <div class="mb-3">
+    <label for="receiverId" class="form-label">معرف المستقبل:</label>
+    <input type="text" id="receiverId" class="form-control" placeholder="أدخل معرف المستقبل">
+  </div>
+
+  <div class="mb-3">
+    <label for="messageContent" class="form-label">الرسالة:</label>
+    <input type="text" id="messageContent" class="form-control" placeholder="أدخل رسالتك هنا">
+    <button id="sendMessageBtn" class="btn btn-success mt-2">إرسال الرسالة</button>
+  </div>
+
+  <script src="js/sockit.js"></script>
+</body>
+
 </html>

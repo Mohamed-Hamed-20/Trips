@@ -29,6 +29,29 @@ export const initSocket = (server) => {
       await handleSendMessage(io, socket, data);
     });
 
+    socket.on("message_seen", async (data) => {
+      const { receiverId, messageId } = data;
+
+      const message = await messageModel.findByIdAndUpdate(
+        { _id: messageId },
+        { isRead: true }
+      );
+      const receiverData = await redis.get(`user-${receiverId}`);
+      let receiverSocketId = null;
+
+      if (receiverData) {
+        const receiver = JSON.parse(receiverData);
+        receiverSocketId = receiver.socketId;
+      }
+
+      if (receiverSocketId && isSocketConnected(io, receiverSocketId)) {
+        io.to(receiverSocketId).emit("message_watched", {
+          receiverId,
+          message,
+        });
+      }
+    });
+
     socket.on("disconnect", async () => {
       console.log(
         `User with Id ${socket.userId} and socketId ${socket.id} disconnected`
@@ -52,11 +75,17 @@ const handleJoin = async (socket, token) => {
       socket.emit("error", { message: "Authentication failed" });
       return;
     }
+
+    user.socketId = socket.id;
+    await redis.set(`user-${user._id}`, JSON.stringify(user));
+    await redis.expire(`user-${user._id}`, 900);
+
     socket.userId = user._id;
 
     socket.emit("logged_success", {
-      message: "User logged in",
+      message: `User logged in  name : ${user.name}  , _id : ${user._id}`,
     });
+
     console.log(`User ${user._id} logged in.`);
   } catch (error) {
     socket.emit("error", { message: "Error during authentication" });
@@ -74,7 +103,9 @@ const handleJoin = async (socket, token) => {
  */
 const handleSendMessage = async (io, socket, data) => {
   try {
-    const { content, receiverId, conversationId } = data;
+    const { content, receiverId } = data;
+    console.log({ content, receiverId });
+
     const senderId = socket.userId;
 
     if (!senderId) {
@@ -87,7 +118,6 @@ const handleSendMessage = async (io, socket, data) => {
     let conversation = await conversationModel
       .findOneAndUpdate(
         {
-          _id: conversationId,
           participants: { $all: [receiverId, senderId] },
         },
         { $set: { lastMessage } },
@@ -98,22 +128,34 @@ const handleSendMessage = async (io, socket, data) => {
     if (!conversation) {
       const conversationValues = {
         participants: [senderId, receiverId],
-        lastMessage: { content, sender: senderId, createdAt: Date.now() },
+        lastMessage,
       };
       conversation = await conversationModel.create(conversationValues);
     }
 
-    // إنشاء الرسالة
     const newMessage = await messageModel.create({
       conversationId: conversation._id,
       sender: senderId,
       content,
     });
 
-    // استرجاع socketId للمستقبل من Redis
-    const receiverSocketId = await redis.hget(`user-${receiverId}`, "socketId");
+    const receiverData = await redis.get(`user-${receiverId}`);
+    let receiverSocketId = null;
+
+    if (receiverData) {
+      const receiver = JSON.parse(receiverData);
+      receiverSocketId = receiver.socketId;
+    }
+
     if (receiverSocketId && isSocketConnected(io, receiverSocketId)) {
       io.to(receiverSocketId).emit("receive_message", newMessage);
+      newMessage.isdelivered = true;
+      await messageModel.findByIdAndUpdate(
+        { _id: newMessage._id },
+        {
+          $set: { isdelivered: true },
+        }
+      );
     }
   } catch (error) {
     socket.emit("error", { message: error.message });
@@ -127,7 +169,16 @@ const handleSendMessage = async (io, socket, data) => {
  */
 const handleDisconnect = async (socket) => {
   if (socket.userId) {
-    await redis.hdel(`user-${socket.userId}`, "socketId");
+    const userData = await redis.get(`user-${socket.userId}`);
+
+    if (userData) {
+      let user = JSON.parse(userData);
+      user.socketId = null;
+
+      await redis.set(`user-${socket.userId}`, JSON.stringify(user));
+      await redis.expire(`user-${socket.userId}`, 900);
+    }
+
     console.log("Removed socketId for user:", socket.userId);
   }
   console.log("User disconnected:", socket.id);
