@@ -1,16 +1,16 @@
 import tripModel from "../../../DB/model/trip.model.js";
 import userModel from "../../../DB/model/user.model.js";
-import wishlistModel from "../../../DB/model/wishlist.model.js";
 
 export const getWishlist = async (req, res, next) => {
   try {
     const { userId } = req;
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required." });
+
+    const user = await userModel.findById(userId).populate("wishlist");
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
     }
 
-    const items = await wishlistModel.find({ userId }).populate("tripId");
-    res.json({ wishlist: items });
+    res.json({ wishlist: user.wishlist });
   } catch (err) {
     next(err);
   }
@@ -25,28 +25,22 @@ export const addToWishlist = async (req, res, next) => {
       return res.status(400).json({ message: "Trip ID is required." });
     }
 
-    const existingTrip = await wishlistModel.findOne({ tripId, userId });
-    if (existingTrip) {
-      return res.status(400).json({ message: "Trip already in wishlist." });
-    }
-
-    const isTrip = await tripModel.findById(tripId);
-    if (!isTrip) {
+    const trip = await tripModel.findById(tripId);
+    if (!trip) {
       return res.status(404).json({ message: "Trip doesn't exist." });
     }
-    let newTrip = await wishlistModel.create({ tripId, userId });
-    newTrip = await newTrip.populate("tripId");
 
-    const user = await userModel.findById(userId);
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { $addToSet: { wishlist: tripId } }, 
+      { new: true }
+    ).populate("wishlist");
+
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    user.wishlist.push(newTrip._id);
-
-    await user.save();
-
-    res.status(201).json(newTrip);
+    res.status(201).json({ message: "Trip added to wishlist", wishlist: user.wishlist });
   } catch (err) {
     next(err);
   }
@@ -57,28 +51,17 @@ export const removeFromWishlist = async (req, res, next) => {
     const { userId } = req;
     const { tripId } = req.params;
 
-    if (!tripId) {
-      return res.status(400).json({ message: "Trip ID is required." });
-    }
-
-    const deletedTrip = await wishlistModel.findOneAndDelete({
-      tripId,
+    const user = await userModel.findByIdAndUpdate(
       userId,
-    });
-    if (!deletedTrip) {
-      return res.status(404).json({ message: "Trip not found in wishlist." });
-    }
-
-    const user = await userModel.findById(userId);
+      { $pull: { wishlist: tripId } },
+      { new: true }
+    ).populate("wishlist");
 
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: "User not found or Trip not in wishlist." });
     }
 
-    user.wishlist.pull(deletedTrip._id);
-
-    await user.save();
-    res.json({ message: "Trip removed successfully!" });
+    res.json({ message: "Trip removed successfully!", wishlist: user.wishlist });
   } catch (err) {
     next(err);
   }
