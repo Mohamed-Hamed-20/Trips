@@ -2,21 +2,19 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
-console.log(process.env.instanceId);
-
 const instanceIdWhatApp = process.env.instanceIdWhatApp;
 const tokenWhatApp = process.env.tokenWhatApp;
 
 const sendMessage = async (booking) => {
   try {
-    console.log({ messgae: "from send msg", booking });
+    console.log({ message: "from send msg", booking });
 
     const response = await axios.post(
       `https://api.ultramsg.com/${instanceIdWhatApp}/messages/chat`,
       {
         token: tokenWhatApp,
         to: booking.phone,
-        body: `hello ${booking?.name} don't forget you trip its in ${booking?.departureDate}`,
+        body: `Hello ${booking?.name}! Don't forget your trip is in ${booking?.departureDate}. Get ready for an amazing experience! 🚀✨`,
       }
     );
     console.log(`📩 Sent to ${booking?.name}:`, response.data);
