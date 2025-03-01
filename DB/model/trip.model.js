@@ -52,12 +52,6 @@ const tripSchema = new Schema(
       type: Types.ObjectId,
       ref: "user",
     },
-    // bookings: [
-    //   {
-    //     type: Types.ObjectId,
-    //     ref: "Booking",
-    //   },
-    // ],
     reviews: [
       {
         type: Types.ObjectId,
