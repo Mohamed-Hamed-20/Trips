@@ -41,6 +41,7 @@ export const auth = (
           if (acceptRoles.includes(user.role)) {
             req.user = user;
             req.userId = user.id;
+            req.user._id = user._id;
             next();
           } else {
             next(new Error("Not authorized user ", { cause: 403 }));

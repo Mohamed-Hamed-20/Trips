@@ -13,6 +13,12 @@ export const signUpValidation = {
         })
         .required(),
       cPassword: Joi.string().valid(Joi.ref("password")).required(),
+      phone: Joi.string()
+        .pattern(/^(\+?\d{1,3}[- ]?)?\d{11}$/)
+        .messages({
+          "string.pattern.base": "Phone number must be valid",
+        })
+        .required(),
     }),
 };
 

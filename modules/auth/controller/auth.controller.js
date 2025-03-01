@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 
 export const signUp = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
     const user = await findOne({
       model: userModel,
       condition: { email },
@@ -35,6 +35,7 @@ export const signUp = async (req, res, next) => {
         name,
         email,
         password: hashedPassword,
+        phone
       });
 
       let token = jwt.sign(
