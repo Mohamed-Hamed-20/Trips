@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(morgan("tiny"));
 app.use(cors());
 
-app.set("view engine" , "ejs")
+app.set("view engine", "ejs");
 
 connection();
 
@@ -38,8 +38,8 @@ app.use(`${baseUrl}/review`, indexRouter.reviewRoutes);
 app.use(`${baseUrl}/trips`, indexRouter.tripRoutes);
 
 // Socket.io
-app.use(`${baseUrl}/conversations`, indexRouter.conversationRoutes);
-app.use(`${baseUrl}/messages`, indexRouter.messageRoutes);
+// app.use(`${baseUrl}/conversations`, indexRouter.conversationRoutes);
+// app.use(`${baseUrl}/messages`, indexRouter.messageRoutes);
 
 // Socket.io
 app.use(`${baseUrl}/conversations`, indexRouter.conversationRoutes);

@@ -11,5 +11,9 @@ router.get("/", (req, res) => {
 router.post("/signup", validation(signUpValidation), registerControl.signUp);
 router.get("/confirmEmail/:token", registerControl.confirmEmail);
 router.post("/login", registerControl.logIn);
+router.post("/getCode", registerControl.sendCode);
+router.post("/forgetPassword", registerControl.forgetPassword);
+
+
 
 export default router;

@@ -22,9 +22,9 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      default: 'User',
-      enum: ["User", "Organizer", "Admin"]
-  },
+      default: "User",
+      enum: ["User", "Organizer", "Admin"],
+    },
     confirmEmail: {
       type: Boolean,
       default: false,
@@ -37,6 +37,9 @@ const userSchema = new Schema(
         ref: "Trip",
       },
     ],
+    code: {
+      type: String,
+    },
   },
   {
     timestamps: true,

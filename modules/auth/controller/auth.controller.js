@@ -3,7 +3,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../../../services/email.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
-import { findOne, findOneAndUpdate } from "../../../DB/DBMethods.js";
+import {
+  findOne,
+  findOneAndUpdate,
+  findByIdAndUpdate,
+} from "../../../DB/DBMethods.js";
+import { customAlphabet } from "nanoid";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -38,11 +43,12 @@ export const signUp = async (req, res, next) => {
         { expiresIn: 60 * 60 }
       );
       let link = `${req.protocol}://${req.headers.host}${process.env.BASEURL}/auth/confirmEmail/${token}`;
-
-      let emailTemplatePath = path.join(__dirname, "./email.html");
+      let emailTemplatePath = path.join(
+        __dirname,
+        "./emailTemplates/email.html"
+      );
       let emailTemplate = fs.readFileSync(emailTemplatePath, "utf-8");
       emailTemplate = emailTemplate.replace("{{link}}", link);
-
       let result = await sendEmail(email, "Verify Your Email", emailTemplate);
 
       if (result.accepted.length) {
@@ -66,7 +72,9 @@ export const confirmEmail = async (req, res, next) => {
     let { token } = req.params;
     let decoded = jwt.verify(token, process.env.emailToken);
     if (!decoded && !decoded.id) {
-      return res.sendFile(path.join(__dirname, "email-failed.html"));
+      return res.sendFile(
+        path.join(__dirname, "./emailTemplates/email-failed.html")
+      );
     } else {
       let updatedUser = await findOneAndUpdate({
         model: userModel,
@@ -75,7 +83,9 @@ export const confirmEmail = async (req, res, next) => {
         options: { new: true },
       });
       if (updatedUser) {
-        return res.sendFile(path.join(__dirname, "email-success.html"));
+        return res.sendFile(
+          path.join(__dirname, "./emailTemplates/email-success.html")
+        );
       } else {
         return res.redirect("https://www.google.com/");
       }
@@ -95,7 +105,6 @@ export const logIn = asyncHandler(async (req, res, next) => {
     model: userModel,
     condition: { email },
   });
-
   if (!user) {
     next(new Error("You have to register first", { cause: 404 }));
   } else {
@@ -121,6 +130,69 @@ export const logIn = asyncHandler(async (req, res, next) => {
       }
     } else {
       next(new Error("Password don't match", { cause: 400 }));
+    }
+  }
+});
+
+export const sendCode = asyncHandler(async (req, res, next) => {
+  let { email } = req.body;
+  let user = await findOne({
+    model: userModel,
+    condition: { email },
+    select: "email",
+  });
+  if (!user) {
+    next(new Error("You have to register first", { cause: 404 }));
+  } else {
+    const generateOTP = customAlphabet("1234567890", 8);
+    let OTPCode = generateOTP();
+    await findByIdAndUpdate({
+      model: userModel,
+      condition: { _id: user._id },
+      data: { code: OTPCode },
+    });
+    let emailTemplatePath = path.join(
+      __dirname,
+      "./emailTemplates/email-code.html"
+    );
+    let emailTemplate = fs.readFileSync(emailTemplatePath, "utf-8");
+    emailTemplate = emailTemplate.replace(/{{code}}/g, OTPCode);
+    console.log("Generated OTP:", OTPCode);
+    console.log("Email Template After Replacement:", emailTemplate);
+    let result = await sendEmail(
+      email,
+      "Password Reset Request",
+      emailTemplate
+    );
+    res.json({
+      message: "Please check your email for a message with your code",
+    });
+  }
+});
+
+export const forgetPassword = asyncHandler(async (req, res, next) => {
+  const { email, code, password } = req.body;
+  if (!code) {
+    next(new Error(" code is not valid", { cause: 400 }));
+  } else {
+    const user = await findOne({
+      model: userModel,
+      condition: { email, code },
+    });
+    if (!user) {
+      next(new Error("Email or code is not valid", { cause: 400 }));
+    } else {
+      let hashedPassword = bcrypt.hashSync(
+        password,
+        parseInt(process.env.SALTROUND)
+      );
+      let updated = await findByIdAndUpdate({
+        model: userModel,
+        condition: { _id: user._id },
+        data: { code: null, password: hashedPassword },
+        options: { new: true },
+      });
+      res.json({ message: "password changed successfully", updated });
     }
   }
 });
