@@ -14,7 +14,7 @@ router.get(
   "/",
   validation(tokenValidation),
   validation(queryValidationSchema(uc.allowUserFields)),
-  auth([roles.User, roles.Admin, roles.Traveler]),
+  auth([roles.User, roles.Admin, roles.Organizer]),
   asyncHandler(uc.searchUsers)
 );
 

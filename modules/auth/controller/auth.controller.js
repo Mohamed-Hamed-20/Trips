@@ -169,7 +169,6 @@ export const sendCode = asyncHandler(async (req, res, next) => {
     });
   }
 });
-
 export const forgetPassword = asyncHandler(async (req, res, next) => {
   const { email, code, password } = req.body;
   if (!code) {

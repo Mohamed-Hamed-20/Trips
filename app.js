@@ -36,6 +36,7 @@ app.use(`${baseUrl}/user`, indexRouter.profileRoutes);
 app.use(`${baseUrl}/user`, indexRouter.userRoutes);
 app.use(`${baseUrl}/review`, indexRouter.reviewRoutes);
 app.use(`${baseUrl}/trips`, indexRouter.tripRoutes);
+app.use(`${baseUrl}/booking`, indexRouter.bookingRoutes);
 
 // Socket.io
 // app.use(`${baseUrl}/conversations`, indexRouter.conversationRoutes);
