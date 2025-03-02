@@ -39,10 +39,7 @@ app.use(`${baseUrl}/user`, indexRouter.userRoutes);
 app.use(`${baseUrl}/review`, indexRouter.reviewRoutes);
 app.use(`${baseUrl}/trips`, indexRouter.tripRoutes);
 app.use(`${baseUrl}/booking`, indexRouter.bookingRoutes);
-
-// Socket.io
-// app.use(`${baseUrl}/conversations`, indexRouter.conversationRoutes);
-// app.use(`${baseUrl}/messages`, indexRouter.messageRoutes);
+app.use(`${baseUrl}/category`, indexRouter.categoryRoutes);
 
 // Socket.io
 app.use(`${baseUrl}/conversations`, indexRouter.conversationRoutes);

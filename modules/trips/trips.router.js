@@ -24,13 +24,6 @@ tripRoutes.use("/wishlist", wishList);
 tripRoutes
   .route("/")
   .get(auth(endPoints.all), getAllTrips)
-  .post(
-    auth(endPoints.add),
-    validation(addTripSchema),
-    myMulter(fileValidation.image).array("images", 7),
-    HME,
-    addTrip
-  );
 
 tripRoutes
   .route("/:id")
@@ -42,6 +35,13 @@ tripRoutes
     validation(updateTripSchema),
     updateTrip
   )
-  .delete(auth(endPoints.add), validation(getByIdSchema), deleteTrip);
+  .delete(auth(endPoints.add), validation(getByIdSchema), deleteTrip)
+  .post(
+    auth(endPoints.add),
+    validation(addTripSchema),
+    myMulter(fileValidation.image).array("images", 7),
+    HME,
+    addTrip
+  );
 
 export default tripRoutes;

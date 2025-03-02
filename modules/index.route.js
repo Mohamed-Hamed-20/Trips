@@ -7,6 +7,7 @@ import wishlistRoutes from "./wishlist/wishlist.router.js";
 import reviewRoutes from "./review/review.router.js";
 import tripRoutes from "./trips/trips.router.js";
 import bookingRoutes from "./booking/booking.route.js";
+import categoryRoutes from "./category/category.router.js";
 import paymentRoutes from "../payment/payment.routes.js";
 
 export {
@@ -20,4 +21,5 @@ export {
   tripRoutes,
   paymentRoutes,
   bookingRoutes,
+  categoryRoutes
 };

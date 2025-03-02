@@ -6,11 +6,10 @@ import redis from "../DB/redis.js";
 export const roles = {
   Admin: "Admin",
   User: "User",
-  Organizer: "Organizer",
 };
 
 export const auth = (
-  acceptRoles = [roles.User, roles.Admin, roles.Organizer]
+  acceptRoles = [roles.User, roles.Admin]
 ) => {
   return asyncHandler(async (req, res, next) => {
     const { authorization } = req.headers;

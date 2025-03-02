@@ -1,40 +1,52 @@
 import tripModel from "../../../DB/model/trip.model.js";
+import categoryModel from "../../../DB/model/category.model.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
 import slugify from "slugify";
 import cloudinary from "../../../services/cloudinary.js";
+import { findOne } from "../../../DB/DBMethods.js";
 // import ApiFeatures from "../../../Utiletis/apiFeatures.js";
 
 export const addTrip = asyncHandler(async (req, res, next) => {
-  if (!req.files?.length) {
-    next(new Error("You have to add images", { cause: 400 }));
+  let { id } = req.params;
+  let foundedCategory = await findOne({
+    model: categoryModel,
+    condition: { _id: id },
+  });
+  if (!foundedCategory) {
+    next(new Error("subCategory or category not found", { cause: 404 }));
   } else {
-    req.body.slug = slugify(req.body.title);
-    req.body.createdBy = req.user._id;
-
-    let imagesUrl = [];
-    let imageIds = [];
-    for (const file of req.files) {
-      let { secure_url, public_id } = await cloudinary.uploader.upload(
-        file.path,
-        { folder: "2025/trips" }
-      );
-      imagesUrl.push(secure_url);
-      imageIds.push(public_id);
-    }
-    req.body.images = imagesUrl;
-    req.body.publicImageIds = imageIds;
-
-    const trip = await tripModel.create(req.body);
-    const responseTrip = trip.toObject();
-    delete responseTrip.__v;
-
-    if (!trip) {
-      for (const id of imageIds) {
-        await cloudinary.uploader.destroy(id);
-      }
-      next(new Error("Error while inserting to DB", { cause: 400 }));
+    if (!req.files?.length) {
+      next(new Error("You have to add images", { cause: 400 }));
     } else {
-      res.status(201).json({ message: "Success", responseTrip });
+      req.body.categoryId = id;
+      req.body.slug = slugify(req.body.title);
+      req.body.createdBy = req.user._id;
+
+      let imagesUrl = [];
+      let imageIds = [];
+      for (const file of req.files) {
+        let { secure_url, public_id } = await cloudinary.uploader.upload(
+          file.path,
+          { folder: "2025/trips" }
+        );
+        imagesUrl.push(secure_url);
+        imageIds.push(public_id);
+      }
+      req.body.images = imagesUrl;
+      req.body.publicImageIds = imageIds;
+
+      const trip = await tripModel.create(req.body);
+      const responseTrip = trip.toObject();
+      delete responseTrip.__v;
+
+      if (!trip) {
+        for (const id of imageIds) {
+          await cloudinary.uploader.destroy(id);
+        }
+        next(new Error("Error while inserting to DB", { cause: 400 }));
+      } else {
+        res.status(201).json({ message: "Success", responseTrip });
+      }
     }
   }
 });

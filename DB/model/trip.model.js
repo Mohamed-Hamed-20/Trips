@@ -52,6 +52,11 @@ const tripSchema = new Schema(
       type: Types.ObjectId,
       ref: "user",
     },
+    categoryId: {
+      type: Types.ObjectId,
+      ref: "Category",
+      required: [true, 'CategoryId is required']
+  },
     reviews: [
       {
         type: Types.ObjectId,

@@ -13,7 +13,6 @@ export const addTripSchema = Joi.object({
     .messages({ "date.min": "Return date must be after departure date." }),
   price: Joi.number().min(0).required(),
   availableSeats: Joi.number().min(0).required(),
-  organizer: Joi.string().hex().length(24).required(),
 });
 
 export const getByIdSchema = Joi.object({
