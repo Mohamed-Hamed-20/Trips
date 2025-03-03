@@ -1,4 +1,3 @@
-```markdown
 # Trip Booking System – Backend
 
 This is the backend service for a MERN-based trip booking system. Built with Node.js and Express, it provides a robust and secure platform for handling trip bookings. The project features authentication, role-based access control, booking management, payment integration, real time communication, and enhanced performance through caching. You can check out the full repository on [GitHub](https://github.com/Mohamed-Hamed-20/Trips).
@@ -59,7 +58,7 @@ To further enhance the responsiveness and scalability of the system, Redis is in
    ```bash
    git clone https://github.com/Mohamed-Hamed-20/Trips.git
    cd Trips
-   ```
+
 
 2. **Install dependencies:**
    ```bash
