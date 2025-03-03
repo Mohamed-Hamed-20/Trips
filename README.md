@@ -43,6 +43,16 @@ To further enhance the responsiveness and scalability of the system, Redis is in
 - **Lowering Database Load:** Minimizing the number of direct database queries.
 - **Enhancing User Experience:** Faster response times for end-users.
 
+## Screenshots
+
+Below are the placeholder images for the project's visual assets. You can update the links once you have the final image URLs on GitHub.
+
+- **Chat Movement Test:**  
+  ![Chat Movement Test](https://drive.google.com/uc?export=view&id=1tmkZpdhhGoEYpju5FDDR9kn2VYcLwa9O)  <!-- Replace with your updated image link if needed -->
+
+- **Chat Movement Test (Duplicate):**  
+  ![Chat Movement Test Duplicate](https://drive.google.com/uc?export=view&id=1tmkZpdhhGoEYpju5FDDR9kn2VYcLwa9O)  <!-- Duplicate for reference; can be removed or replaced as needed -->
+
 ## Technologies
 
 - **Node.js** – Server-side JavaScript runtime.
@@ -102,18 +112,6 @@ To further enhance the responsiveness and scalability of the system, Redis is in
 - Integrate more advanced analytics for trip bookings.
 - **Screenshots and Diagrams:** Visual documentation will be updated to further illustrate the architecture and workflow.
 
-## Screenshots
-
-Below are the placeholder images for the project's visual assets. You can update the links once you have the final image URLs on GitHub.
-
-- **Chat Movement Test:**  
-  ![Chat Movement Test](https://drive.google.com/uc?export=view&id=1tmkZpdhhGoEYpju5FDDR9kn2VYcLwa9O)  <!-- Replace with your updated image link if needed -->
-
-- **Additional Diagram:**  
-  ![Additional Diagram](https://drive.google.com/uc?export=view&id=1FbwMxdlmF1sGsWyvAiupFRrfKMqWpoC)  <!-- Replace with your updated image link if needed -->
-
-- **Chat Movement Test (Duplicate):**  
-  ![Chat Movement Test Duplicate](https://drive.google.com/uc?export=view&id=1tmkZpdhhGoEYpju5FDDR9kn2VYcLwa9O)  <!-- Duplicate for reference; can be removed or replaced as needed -->
 
 ---
 Feel free to contribute or raise issues for any further improvements!
